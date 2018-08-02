@@ -1,5 +1,17 @@
+const JWT = require('jsonwebtoken');
 const User = require('../models/user');
 const Car = require('../models/car');
+
+const { JWT_SECRET } = require('../config');
+
+signToken = user => {
+    return JWT.sign({
+        iss: 'Testing',
+        sub: user._id,
+        iat: new Date().getTime(),
+        exp: new Date().setDate(new Date().getDate() + 1)
+    }, JWT_SECRET);
+}
 
 module.exports = {
     index: async (req, res, next) => {
@@ -9,7 +21,17 @@ module.exports = {
     newUser: async (req, res, next) => {
         const newUser = new User(req.value.body);
         const user = await newUser.save();
-        res.status(201).json(user);
+
+        const token = signToken(newUser)
+
+        res.status(200).json({token: token});
+    },
+    signIn: async (req, res, next) => {
+        const token = signToken(req.user);
+        res.status(200).json({token: token});
+    },
+    secret: async (req, res, next) => {
+        res.json({secret: "resource"});
     },
     getUser: async (req, res, next) => {
         const { userId } = req.value.params;

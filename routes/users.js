@@ -1,4 +1,6 @@
 const router = require('express-promise-router')();
+const passport = require('passport');
+const passportConf = require('../passport');
 
 const UsersController = require('../controllers/users');
 const { validateParam, schemas, validateBody } = require('../helpers/routeHelpers');
@@ -6,6 +8,12 @@ const { validateParam, schemas, validateBody } = require('../helpers/routeHelper
 router.route('/')
     .get(UsersController.index)
     .post(validateBody(schemas.userSchema), UsersController.newUser);
+
+router.route('/signin')
+    .post(passport.authenticate('local', {session: false}), UsersController.signIn);
+
+router.route('/secret')
+    .get(passport.authenticate('jwt', {session: false}), UsersController.secret);
 
 router.route('/:userId')
     .get(validateParam(schemas.idSchema, 'userId'), UsersController.getUser)
