@@ -3,10 +3,17 @@ const logger = require('morgan');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
-//mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/apiproject', { 
-    useNewUrlParser: true 
-});
+mongoose.Promise = global.Promise;
+if (process.env.NODE_ENV === 'test') {
+    mongoose.connect('mongodb://localhost:27017/apiprojectTEST', {
+        useNewUrlParser: true
+    });
+} else {
+    mongoose.connect('mongodb://localhost:27017/apiproject', {
+        useNewUrlParser: true
+    });
+}
+
 
 const app = express();
 
@@ -14,7 +21,10 @@ const app = express();
 const users = require('./routes/users');
 
 // Middlewares
-app.use(logger('dev'));
+if (process.env.NODE_ENV !== 'test') {
+    app.use(logger('dev'));
+}
+
 app.use(bodyParser.json());
 
 // Routes
@@ -43,7 +53,4 @@ app.use((err, req, res, next) => {
     console.error(err);
 });
 
-
-// Start the server
-const port = app.get('port') || 3000;
-app.listen(port, () => console.log('Server is listening on port '+ port));
+module.exports = app;

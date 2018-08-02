@@ -19,6 +19,11 @@ module.exports = {
         res.status(200).json(users);
     },
     newUser: async (req, res, next) => {
+        const { email } = req.value.body;
+        const foundUser = await User.findOne({email});
+        if (foundUser) {
+            return res.status(403).json({error: 'Email is already in use'});
+        }
         const newUser = new User(req.value.body);
         const user = await newUser.save();
 
