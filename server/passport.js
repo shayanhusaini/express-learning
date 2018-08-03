@@ -11,7 +11,8 @@ passport.use(new JWTStrategy({
     secretOrKey: JWT_SECRET
 }, async (payload, done) => {
     try {
-        const user = await User.findById(payload.sub);
+        const lUser = await User.findById(payload.sub);
+        const user = lUser.getUser();
         if (!user) {
             return done(null, false);
         }
@@ -28,6 +29,7 @@ passport.use(new LocalStrategy({
 }, async (email, password, done) => {
     try {
         const user = await User.findOne({ email });
+        const iUser = user.getUser();
         if (!user) {
             return done(null, false);
         }
@@ -37,7 +39,7 @@ passport.use(new LocalStrategy({
             done(null, false);
         }
 
-        done(null, user);
+        done(null, iUser);
     } catch (error) {
         done(error, false);
     }

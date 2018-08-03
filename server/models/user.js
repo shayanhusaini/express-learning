@@ -41,5 +41,14 @@ userSchema.methods.isValidPassword = async function (password) {
     }
 }
 
+userSchema.methods.getUser = function() {
+    return {
+        _id: this._id,
+        firstName: this.firstName,
+        lastName: this.lastName,
+        email: this.email
+    };
+}
+
 const User = mongoose.model('user', userSchema);
 module.exports = User;

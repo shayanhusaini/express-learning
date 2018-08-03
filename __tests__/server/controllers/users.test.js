@@ -35,7 +35,7 @@ describe('Users controller', () => {
     };
 
     beforeEach(() => {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
     });
 
     afterEach(() => {

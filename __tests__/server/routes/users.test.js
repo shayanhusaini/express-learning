@@ -9,12 +9,13 @@ const server = require('../../../server/app');
 chai.use(chaiHttp);
 
 let token;
+let instanceUser = {};
 
-console.log(faker.internet.password());
 describe('Users route', () => {
     const signup = '/users';
     const signin = '/users/signin';
     const secret = '/users/secret';
+    const userWithId = '/users/';
     const user = {
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
@@ -29,8 +30,8 @@ describe('Users route', () => {
     }
 
     const preSaveLogin = {
-        email: 'mr.sometest@gmail.com',
-        password: 'test'
+        email: preSave.email,
+        password: preSave.password
     }
 
     before(done => {
@@ -41,6 +42,7 @@ describe('Users route', () => {
             .end((err, res) => {
                 expect(res.status).to.equal(200);
                 token = res.body.token;
+                instanceUser = res.body.user;
                 done();
             });
     });
@@ -126,11 +128,25 @@ describe('Users route', () => {
                 .post(signin)
                 .send(preSaveLogin)
                 .end((err, res) => {
-                    expect(res.status).to.be.equal(401);
-                    /* expect(res.bodys).not.to.be.empty;
-                    expect(res.bodys).to.have.property('token'); */
+                    expect(res.status).to.be.equal(200);
+                    expect(res.body).not.to.be.empty;
+                    expect(res.body).to.have.property('token');
                     done();
                 });
+        });
+    });
+
+    describe('update user', () => {
+        it('should return 400 if empty object is passed', done => {
+            const obj = {};
+            chai
+                .request(server)
+                .patch(userWithId+'/'+instanceUser._id)
+                .send(obj)
+                .end((err, res) => {
+                    expect(res.status).to.be.equal(200);
+                });
+
         });
     });
 });

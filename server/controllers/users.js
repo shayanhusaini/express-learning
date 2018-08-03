@@ -29,11 +29,12 @@ module.exports = {
 
         const token = signToken(newUser)
 
-        res.status(200).json({token: token});
+        res.status(200).json({token: token, userId: newUser._id});
     },
     signIn: async (req, res, next) => {
+        console.log(req.user);
         const token = signToken(req.user);
-        res.status(200).json({token: token});
+        res.status(200).json({token: token, user: req.user});
     },
     secret: async (req, res, next) => {
         res.json({secret: "resource"});
@@ -47,12 +48,22 @@ module.exports = {
         const {userId} = req.value.params;
         const newUser = req.value.body;
         const result = await User.findByIdAndUpdate(userId, newUser);
+        if (!result) {
+            return res.status(404).json({error: 'User does not exists'});
+        }
         res.status(200).json({success: true});
     },
     updateUser: async (req, res, next) => {
         const {userId} = req.value.params;
         const newUser = req.value.body;
+        console.log(newUser);
+        if (!newUser) {
+            return res.status(400).json({error: 'Please include parameters to update'});
+        }
         const result = await User.findByIdAndUpdate(userId, newUser);
+        if (!result) {
+            return res.status(404).json({error: 'User does not exists'});
+        }
         res.status(200).json({success: true});
     },
     getUserCars: async (req, res, next) => {
