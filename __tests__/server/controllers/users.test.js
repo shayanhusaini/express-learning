@@ -14,7 +14,9 @@ let sandbox = null;
 
 describe('Users controller', () => {
     let req = {
-        user: { id: faker.random.number() },
+        user: { 
+            id: faker.random.number() 
+        },
         value: {
             body: {
                 firstName: faker.name.firstName(),
@@ -73,7 +75,10 @@ describe('Users controller', () => {
             let signToken = userController.__set__('signToken', user => 'fakeToken');
 
             return userController.signIn(req, res).then(() => {
-                expect(res.json).to.have.been.calledWith({ token: 'fakeToken' });
+                expect(res.json).to.have.been.calledWith({ token: 'fakeToken', user: {
+                        id: req.user.id
+                    } 
+                });
                 signToken();
             });
         });
@@ -119,12 +124,14 @@ describe('Users controller', () => {
             sandbox.spy(res, 'json');
             sandbox.spy(res, 'status');
             sandbox.stub(User, 'findOne').returns(Promise.resolve(false));
-            sandbox.stub(User.prototype, 'save').returns(Promise.resolve({ id: faker.random.number() }));
+            const fakeId = faker.random.number();
+            sandbox.stub(User.prototype, 'save').returns(Promise.resolve({ id: fakeId }));
 
             let signToken = userController.__set__('signToken', user => 'fakeTokenNumberTwo');
 
             return userController.signIn(req, res).then(() => {
-                expect(res.json).to.have.been.calledWith({ token: 'fakeTokenNumberTwo' });
+                //console.log(res.json);
+                expect(res.json).to.have.been.calledWith({ token: 'fakeTokenNumberTwo', user: {id: req.user.id} });
                 signToken();
             });
         });

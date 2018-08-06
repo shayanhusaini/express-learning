@@ -9,7 +9,7 @@ const server = require('../../../server/app');
 chai.use(chaiHttp);
 
 let token;
-let instanceUser = {};
+let instanceUser;
 
 describe('Users route', () => {
     const signup = '/users';
@@ -144,9 +144,42 @@ describe('Users route', () => {
                 .patch(userWithId+'/'+instanceUser._id)
                 .send(obj)
                 .end((err, res) => {
-                    expect(res.status).to.be.equal(200);
+                    expect(res.status).to.be.equal(400);
+                    expect(res.body).to.deep.equal({ error: 'Please include parameters to update' });
+                    done();
                 });
+        });
 
+        it('should return 404 if user not exists', done => {
+            obj = {firstName: 'Test'}
+            chai
+                .request(server)
+                .patch(userWithId+'/5b6331159e83451bfdcefcba')
+                .send(obj)
+                .end((err, res) => {
+                    expect(res.status).to.be.equal(404);
+                    expect(res.body).to.deep.equal({ error: 'User does not exists' });
+                    done();
+                });
+        });
+
+        it('should return 200 with updated user', done => {
+            obj = {firstName: 'Mustaqeem', lastName: 'Paracha'}
+            chai
+                .request(server)
+                .patch(userWithId+'/'+instanceUser._id)
+                .send(obj)
+                .end((err, res) => {
+                    expect(res.status).to.be.equal(200);
+                    expect(res.body).to.deep.equal({ success: true, user: {
+                            _id: instanceUser._id,
+                            firstName: obj.firstName, 
+                            lastName: obj.lastName,
+                            email: preSave.email
+                        } 
+                    });
+                    done();
+                });
         });
     });
 });
