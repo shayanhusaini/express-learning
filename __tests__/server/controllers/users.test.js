@@ -18,6 +18,7 @@ describe('Users controller', () => {
             id: faker.random.number() 
         },
         value: {
+            params: {id: faker.random.number()},
             body: {
                 firstName: faker.name.firstName(),
                 lastName: faker.name.lastName(),
@@ -135,5 +136,47 @@ describe('Users controller', () => {
                 signToken();
             });
         });
+    });
+
+    describe('updateUser', () => {
+        it('should return 404 if user not found', () => {
+            sandbox.spy(res, 'json');
+            sandbox.spy(res, 'status');
+            sandbox.stub(User, 'findByIdAndUpdate').returns(Promise.resolve(false));
+
+            return userController.updateUser(req, res).then(() => {
+                expect(res.status).to.have.been.calledWith(404);
+                expect(res.json).to.have.been.calledWith({ error: 'User does not exists' });
+            });
+        });
+
+        it('should return 400 if empty object passed', () => {
+            sandbox.spy(res, 'json');
+            sandbox.spy(res, 'status');
+
+            return userController.updateUser({value: {params: {id: faker.random.number()}}}, res).then(() => {
+                expect(res.status).to.have.been.calledWith(400);
+                expect(res.json).to.have.been.calledWith({ error: 'Please include parameters to update' });
+            });
+        });
+
+        /* it('should return 200 with updated user', () => {
+            sandbox.spy(res, 'json');
+            sandbox.spy(res, 'status');
+            const upUser = {firstName: faker.name.firstName(), lastName: faker.name.lastName, email: faker.internet.email()};
+            sandbox.stub(User, 'findByIdAndUpdate').returns(Promise.resolve(upUser));
+            sandbox.stub(User, 'findById').returns(Promise.resolve(upUser));
+            var u = new User(upUser);
+            u.getUser(function() {
+                expect(true, true);
+            });
+
+
+            return userController.updateUser(req, res).then(() => {
+                expect(res.status).to.have.been.calledWith(200);
+                expect(res.json).to.have.been.calledWith({ success: true, user: upUser });
+            });
+        }); */
+
     });
 });
