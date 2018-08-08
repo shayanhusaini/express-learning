@@ -56,6 +56,48 @@ describe('Users route', () => {
         });
     });
 
+    describe('index', () => {
+        it('should return list of user', done => {
+            chai
+                .request(server)
+                .get(signup)
+                .end((err, res) => {
+                    expect(res.status).to.equal(200);
+                    expect(res.body).to.deep.equal([instanceUser]);
+                    done();
+                });
+        });
+    });
+
+    describe('getUser', () => {
+        it('should return 404 if user does not exists', done => {
+            chai
+                .request(server)
+                .get(userWithId+'/'+instanceUser._id.replace('a', 'b'))
+                .end((err, res) => {
+                    expect(res.status).to.equal(404);
+                    expect(res.body).to.deep.equal({ error: 'User does not exists' });
+                    done();
+                });
+        });
+        it('should return user info', done => {
+            chai
+                .request(server)
+                .get(userWithId+'/'+instanceUser._id)
+                .end((err, res) => {
+                    expect(res.status).to.equal(200);
+                    expect(res.body).not.to.be.empty;
+                    expect(res.body).to.be.deep.equal({
+                        _id: instanceUser._id,
+                        firstName: instanceUser.firstName,
+                        lastName: instanceUser.lastName,
+                        email: instanceUser.email,
+                    });
+                    done();
+                });
+        });
+    });
+
     describe('signup', () => {
         it('should create new user if email not found', done => {
             chai
@@ -176,6 +218,64 @@ describe('Users route', () => {
                             firstName: obj.firstName, 
                             lastName: obj.lastName,
                             email: preSave.email
+                        } 
+                    });
+                    done();
+                });
+        });
+    });
+
+    describe('replace user', () => {
+        it('should return 400 if empty object is passed', done => {
+            const obj = {};
+            chai
+                .request(server)
+                .put(userWithId+'/'+instanceUser._id)
+                .send(obj)
+                .end((err, res) => {
+                    expect(res.status).to.be.equal(400);
+                    done();
+                });
+        });
+
+        it('should return 400 if not all params are passed', done => {
+            const obj = {firstName: 'Test', lastName: 'Paracha'};
+            chai
+                .request(server)
+                .put(userWithId+'/'+instanceUser._id)
+                .send(obj)
+                .end((err, res) => {
+                    expect(res.status).to.be.equal(400);
+                    done();
+                });
+        });
+
+        it('should return 404 if user not exists', done => {
+            obj = {firstName: 'Test', lastName: 'Paracha', email: 'mrtest@gmail.com'}
+            chai
+                .request(server)
+                .put(userWithId+'/5b6331159e83451bfdcefcba')
+                .send(obj)
+                .end((err, res) => {
+                    expect(res.status).to.be.equal(404);
+                    expect(res.body).to.deep.equal({ error: 'User does not exists' });
+                    done();
+                });
+        });
+
+        it('should return 200 with updated user', done => {
+            obj = {firstName: 'Mustaqeem', lastName: 'Paracha', email: 'mrtest@gmail.com'}
+            chai
+                .request(server)
+                .put(userWithId+'/'+instanceUser._id)
+                .send(obj)
+                .end((err, res) => {
+                    expect(res.status).to.be.equal(200);
+                    expect(res.body).to.deep.equal({ success: true, user: {
+                            _id: instanceUser._id,
+                            firstName: obj.firstName, 
+                            lastName: obj.lastName,
+                            email: obj.email
                         } 
                     });
                     done();

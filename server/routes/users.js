@@ -17,7 +17,7 @@ router.route('/secret')
 
 router.route('/:userId')
     .get(validateParam(schemas.idSchema, 'userId'), UsersController.getUser)
-    .put([validateParam(schemas.idSchema, 'userId'), validateBody(schemas.userSchema)], UsersController.replaceUser)
+    .put([validateParam(schemas.idSchema, 'userId'), validateBody(schemas.userReplaceSchema)], UsersController.replaceUser)
     .patch([validateParam(schemas.idSchema, 'userId'), validateBody(schemas.userOptionalSchema)], UsersController.updateUser);
 
 router.route('/:userId/cars')

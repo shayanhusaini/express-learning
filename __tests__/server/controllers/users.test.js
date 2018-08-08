@@ -58,6 +58,45 @@ describe('Users controller', () => {
         });
     });
 
+    /* describe('index', () => {
+        it('should return list of users', () => {
+            sandbox.spy(res, 'status');
+            sandbox.spy(res, 'json');
+            sandbox.stub(User, 'find').returns(Promise.resolve([req.value.body]));
+
+            return userController.index(req, res).then(() => {
+                expect(res.status).to.have.been.calledWith(200);
+                expect(res.json).to.be.deep.equal({data: [req.value.body]});
+            })
+        });
+    }); */
+
+    describe('getUser', () => {
+        it('should return 404 when called', () => {
+            sandbox.spy(res, 'status');
+            sandbox.spy(res, 'json');
+            sandbox.stub(User, 'findById').returns(Promise.resolve(false));
+
+            return userController.getUser(req, res).then(() => {
+                expect(res.status).to.have.been.calledWith(404);
+                expect(res.json).to.have.been.calledWith({ error: 'User does not exists' });
+            });
+        });
+
+        it('should return user info when called', () => {
+            sandbox.spy(res, 'status');
+            sandbox.spy(res, 'json');
+            sandbox.stub(User, 'findById').returns(Promise.resolve({getUser: function() {
+                return req.value.body;
+            }}));
+
+            return userController.getUser(req, res).then(() => {
+                expect(res.status).to.have.been.calledWith(200);
+                expect(res.json).to.have.been.calledWith(req.value.body);
+            });
+        });
+    });
+
     describe('signIn', () => {
         it('should return token when signIn called', () => {
             sandbox.spy(res, 'json');
@@ -160,23 +199,60 @@ describe('Users controller', () => {
             });
         });
 
-        /* it('should return 200 with updated user', () => {
+        it('should return 200 with updated user', () => {
             sandbox.spy(res, 'json');
             sandbox.spy(res, 'status');
             const upUser = {firstName: faker.name.firstName(), lastName: faker.name.lastName, email: faker.internet.email()};
             sandbox.stub(User, 'findByIdAndUpdate').returns(Promise.resolve(upUser));
-            sandbox.stub(User, 'findById').returns(Promise.resolve(upUser));
-            var u = new User(upUser);
-            u.getUser(function() {
-                expect(true, true);
-            });
+            sandbox.stub(User, 'findById').returns(Promise.resolve({getUser: function() {
+                return upUser;
+            }}));
 
 
             return userController.updateUser(req, res).then(() => {
                 expect(res.status).to.have.been.calledWith(200);
                 expect(res.json).to.have.been.calledWith({ success: true, user: upUser });
             });
-        }); */
+        });
+
+    });
+
+    describe('replaceUser', () => {
+        it('should return 404 if user not found', () => {
+            sandbox.spy(res, 'json');
+            sandbox.spy(res, 'status');
+            sandbox.stub(User, 'findByIdAndUpdate').returns(Promise.resolve(false));
+
+            return userController.replaceUser(req, res).then(() => {
+                expect(res.status).to.have.been.calledWith(404);
+                expect(res.json).to.have.been.calledWith({ error: 'User does not exists' });
+            });
+        });
+
+        it('should return 400 if empty object passed', () => {
+            sandbox.spy(res, 'json');
+            sandbox.spy(res, 'status');
+
+            return userController.replaceUser({value: {params: {id: faker.random.number()}, body: {}}}, res).then(() => {
+                expect(res.status).to.have.been.calledWith(400);
+            });
+        });
+
+        it('should return 200 with updated user', () => {
+            sandbox.spy(res, 'json');
+            sandbox.spy(res, 'status');
+            const upUser = {firstName: faker.name.firstName(), lastName: faker.name.lastName, email: faker.internet.email()};
+            sandbox.stub(User, 'findByIdAndUpdate').returns(Promise.resolve(upUser));
+            sandbox.stub(User, 'findById').returns(Promise.resolve({getUser: function() {
+                return upUser;
+            }}));
+
+
+            return userController.replaceUser(req, res).then(() => {
+                expect(res.status).to.have.been.calledWith(200);
+                expect(res.json).to.have.been.calledWith({ success: true, user: upUser });
+            });
+        });
 
     });
 });

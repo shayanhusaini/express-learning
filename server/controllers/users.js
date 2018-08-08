@@ -17,7 +17,7 @@ signToken = user => {
 module.exports = {
     index: async (req, res, next) => {
         const users = await User.find({});
-        res.status(200).json(users);
+        res.status(200).json({data: users});
     },
     newUser: async (req, res, next) => {
         const { email } = req.value.body;
@@ -42,16 +42,23 @@ module.exports = {
     getUser: async (req, res, next) => {
         const { userId } = req.value.params;
         const user = await User.findById(userId);
-        res.status(200).json(user);
+        if(!user) {
+            return res.status(404).json({error: 'User does not exists'});
+        }
+        res.status(200).json(user.getUser());
     },
     replaceUser: async (req, res, next) => {
         const { userId } = req.value.params;
         const newUser = req.value.body;
+        if (isEmpty(newUser)) {
+            return res.status(400).json({ error: 'Please include parameters to update' });
+        }
         const result = await User.findByIdAndUpdate(userId, newUser);
         if (!result) {
             return res.status(404).json({ error: 'User does not exists' });
         }
-        res.status(200).json({ success: true });
+        const updatedUser = await User.findById(userId);
+        res.status(200).json({ success: true, user: updatedUser.getUser() });
     },
     updateUser: async (req, res, next) => {
         const { userId } = req.value.params;
