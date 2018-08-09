@@ -58,18 +58,19 @@ describe('Users controller', () => {
         });
     });
 
-    /* describe('index', () => {
+    describe('index', () => {
         it('should return list of users', () => {
             sandbox.spy(res, 'status');
             sandbox.spy(res, 'json');
             sandbox.stub(User, 'find').returns(Promise.resolve([req.value.body]));
 
             return userController.index(req, res).then(() => {
+                //console.log(res.json);
                 expect(res.status).to.have.been.calledWith(200);
-                expect(res.json).to.be.deep.equal({data: [req.value.body]});
+                expect(res.json).to.have.been.calledWith({data: [req.value.body]});
             })
         });
-    }); */
+    });
 
     describe('getUser', () => {
         it('should return 404 when called', () => {

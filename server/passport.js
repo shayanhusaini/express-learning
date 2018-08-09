@@ -12,11 +12,10 @@ passport.use(new JWTStrategy({
 }, async (payload, done) => {
     try {
         const lUser = await User.findById(payload.sub);
-        const user = lUser.getUser();
-        if (!user) {
+        if (!lUser) {
             return done(null, false);
         }
-
+        const user = lUser.getUser();
         done(null, user);
     } catch (error) {
         done(error, false);

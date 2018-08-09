@@ -50,7 +50,7 @@ app.use((err, req, res, next) => {
     });
 
     // Response to ourselves
-    console.error(err);
+    //console.error(err);
 });
 
 module.exports = app;

@@ -56,6 +56,18 @@ describe('Users route', () => {
         });
     });
 
+    describe('app level handling', () => {
+        it('should return 404 if route not found', done => {
+            chai
+                .request(server)
+                .get('/cars')
+                .end((err, res) => {
+                    expect(res.status).to.equal(404);
+                    done();
+                });
+        });
+    });
+
     describe('index', () => {
         it('should return list of user', done => {
             chai
@@ -63,7 +75,7 @@ describe('Users route', () => {
                 .get(signup)
                 .end((err, res) => {
                     expect(res.status).to.equal(200);
-                    expect(res.body).to.deep.equal([instanceUser]);
+                    expect(res.body).to.deep.include({ data: [instanceUser] });
                     done();
                 });
         });
@@ -73,7 +85,7 @@ describe('Users route', () => {
         it('should return 404 if user does not exists', done => {
             chai
                 .request(server)
-                .get(userWithId+'/'+instanceUser._id.replace('a', 'b'))
+                .get(userWithId + '/' + instanceUser._id.replace(/[a-f]/g, 'c'))
                 .end((err, res) => {
                     expect(res.status).to.equal(404);
                     expect(res.body).to.deep.equal({ error: 'User does not exists' });
@@ -83,7 +95,7 @@ describe('Users route', () => {
         it('should return user info', done => {
             chai
                 .request(server)
-                .get(userWithId+'/'+instanceUser._id)
+                .get(userWithId + '/' + instanceUser._id)
                 .end((err, res) => {
                     expect(res.status).to.equal(200);
                     expect(res.body).not.to.be.empty;
@@ -183,7 +195,7 @@ describe('Users route', () => {
             const obj = {};
             chai
                 .request(server)
-                .patch(userWithId+'/'+instanceUser._id)
+                .patch(userWithId + '/' + instanceUser._id)
                 .send(obj)
                 .end((err, res) => {
                     expect(res.status).to.be.equal(400);
@@ -193,10 +205,10 @@ describe('Users route', () => {
         });
 
         it('should return 404 if user not exists', done => {
-            obj = {firstName: 'Test'}
+            obj = { firstName: 'Test' }
             chai
                 .request(server)
-                .patch(userWithId+'/5b6331159e83451bfdcefcba')
+                .patch(userWithId + '/5b6331159e83451bfdcefcba')
                 .send(obj)
                 .end((err, res) => {
                     expect(res.status).to.be.equal(404);
@@ -206,19 +218,20 @@ describe('Users route', () => {
         });
 
         it('should return 200 with updated user', done => {
-            obj = {firstName: 'Mustaqeem', lastName: 'Paracha'}
+            obj = { firstName: 'Mustaqeem', lastName: 'Paracha' }
             chai
                 .request(server)
-                .patch(userWithId+'/'+instanceUser._id)
+                .patch(userWithId + '/' + instanceUser._id)
                 .send(obj)
                 .end((err, res) => {
                     expect(res.status).to.be.equal(200);
-                    expect(res.body).to.deep.equal({ success: true, user: {
+                    expect(res.body).to.deep.equal({
+                        success: true, user: {
                             _id: instanceUser._id,
-                            firstName: obj.firstName, 
+                            firstName: obj.firstName,
                             lastName: obj.lastName,
                             email: preSave.email
-                        } 
+                        }
                     });
                     done();
                 });
@@ -230,7 +243,7 @@ describe('Users route', () => {
             const obj = {};
             chai
                 .request(server)
-                .put(userWithId+'/'+instanceUser._id)
+                .put(userWithId + '/' + instanceUser._id)
                 .send(obj)
                 .end((err, res) => {
                     expect(res.status).to.be.equal(400);
@@ -239,10 +252,10 @@ describe('Users route', () => {
         });
 
         it('should return 400 if not all params are passed', done => {
-            const obj = {firstName: 'Test', lastName: 'Paracha'};
+            const obj = { firstName: 'Test', lastName: 'Paracha' };
             chai
                 .request(server)
-                .put(userWithId+'/'+instanceUser._id)
+                .put(userWithId + '/' + instanceUser._id)
                 .send(obj)
                 .end((err, res) => {
                     expect(res.status).to.be.equal(400);
@@ -251,10 +264,10 @@ describe('Users route', () => {
         });
 
         it('should return 404 if user not exists', done => {
-            obj = {firstName: 'Test', lastName: 'Paracha', email: 'mrtest@gmail.com'}
+            obj = { firstName: 'Test', lastName: 'Paracha', email: 'mrtest@gmail.com' }
             chai
                 .request(server)
-                .put(userWithId+'/5b6331159e83451bfdcefcba')
+                .put(userWithId + '/5b6331159e83451bfdcefcba')
                 .send(obj)
                 .end((err, res) => {
                     expect(res.status).to.be.equal(404);
@@ -264,19 +277,20 @@ describe('Users route', () => {
         });
 
         it('should return 200 with updated user', done => {
-            obj = {firstName: 'Mustaqeem', lastName: 'Paracha', email: 'mrtest@gmail.com'}
+            obj = { firstName: 'Mustaqeem', lastName: 'Paracha', email: 'mrtest@gmail.com' }
             chai
                 .request(server)
-                .put(userWithId+'/'+instanceUser._id)
+                .put(userWithId + '/' + instanceUser._id)
                 .send(obj)
                 .end((err, res) => {
                     expect(res.status).to.be.equal(200);
-                    expect(res.body).to.deep.equal({ success: true, user: {
+                    expect(res.body).to.deep.equal({
+                        success: true, user: {
                             _id: instanceUser._id,
-                            firstName: obj.firstName, 
+                            firstName: obj.firstName,
                             lastName: obj.lastName,
                             email: obj.email
-                        } 
+                        }
                     });
                     done();
                 });
